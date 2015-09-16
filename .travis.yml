@@ -1,24 +1,56 @@
 language: c
 
+sudo: false
+
+addons:
+  apt_packages:
+    - binutils-mingw-w64-i686
+    - binutils-mingw-w64-x86-64
+    - gcc-mingw-w64-i686
+    - gcc-mingw-w64-x86-64
+    - mingw-w64
+
 os:
- - linux
- - osx
+  - linux
+  - osx
 
 compiler:
- - clang
- - gcc
+  - clang
+  - gcc
+  - i686-w64-mingw32-gcc
+  - x86_64-w64-mingw32-gcc
 
 env:
- - CONFIG_OPTS=""
- - CONFIG_OPTS="--debug"
- - CONFIG_OPTS="shared"
+  - CONFIG_OPTS=""
+  - CONFIG_OPTS="--debug"
+  - CONFIG_OPTS="shared"
+
+matrix:
+  exclude:
+    - os: osx
+      compiler: i686-w64-mingw32-gcc
+    - os: osx
+      compiler: x86_64-w64-mingw32-gcc
+
+before_script:
+  - if [ "$CC" == i686-w64-mingw32-gcc -o "$CC" == x86_64-w64-mingw32-gcc ]; then
+      export CROSS_COMPILE=${CC%%gcc};
+      unset CC; ./Configure mingw64 no-asm $CONFIG_OPTS;
+    else
+      ./config $CONFIG_OPTS;
+    fi
 
 script:
- - ./config $CONFIG_OPTS && make && make test
+  -  make
+
+after_script:
+  -  make test
 
 notifications:
-  recipient:
-   - openssl-dev@openssl.org
-  email:
-    on_success: change
-    on_failure: always
+    recipient:
+      - openssl-dev@openssl.org
+    email:
+        on_success: change
+        on_failure: always
+
+cache: ccache

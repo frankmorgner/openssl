@@ -1,13 +1,7 @@
 language: c
 
-sudo: false
-
 addons:
   apt_packages:
-    - binutils-mingw-w64-i686
-    - binutils-mingw-w64-x86-64
-    - gcc-mingw-w64-i686
-    - gcc-mingw-w64-x86-64
     - mingw-w64
 
 os:
